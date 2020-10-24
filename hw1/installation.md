@@ -19,6 +19,7 @@ export LD_LIBRARY_PATH=~/.mujoco/mujoco200/bin/
 ## Install other dependencies
 
 
+
 There are two options:
 
 A. (Recommended) Install with conda:

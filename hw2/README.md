@@ -6,11 +6,18 @@ You can run this code on your own machine or on Google Colab.
 2. **Colab:** The first few sections of the notebook will install all required dependencies. You can try out the Colab option by clicking the badge below:
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/berkeleydeeprlcourse/homework_fall2020/blob/master/hw2/cs285/scripts/run_hw2.ipynb)
-
+\begin{align}\pi^*(s) = \arg\!\max_a \ Q^*(s, a)\end{align}
 ## Complete the code
 
 The following files have blanks to be filled with your solutions from homework 1. The relevant sections are marked with "TODO: get this from hw1".
+```shell script
+/home/hawk/py/env/py38.cd11.0/bin/python3.8 /home/hawk/dl/cs285/hw2/homework_fall2020/hw2/cs285/scripts/run_hw2.py --env_name CartPole-v0 -n 100 -b 1000 -dsa --exp_name q1_sb_no_rtg_dsa
+########################
+logging outputs to  /home/hawk/dl/cs285/hw2/homework_fall2020/hw2/cs285/scripts/../../data/q1_sb_no_rtg_dsa_CartPole-v0_17-09-2020_21-44-19
+########################
+GPU not detected. Defaulting to CPU.
 
+```
 - [infrastructure/rl_trainer.py](cs285/infrastructure/rl_trainer.py)
 - [infrastructure/utils.py](cs285/infrastructure/utils.py)
 - [policies/MLP_policy.py](cs285/policies/MLP_policy.py)

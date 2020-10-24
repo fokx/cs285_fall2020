@@ -25,7 +25,9 @@ class Logger:
     def log_video(self, video_frames, name, step, fps=10):
         assert len(video_frames.shape) == 5, "Need [N, T, C, H, W] input tensor for video logging!"
         self._summ_writer.add_video('{}'.format(name), video_frames, step, fps=fps)
-
+        # self._summ_writer.add_video('{}'.format("/home/hawk/dl/cs285/homework_fall2020/hw1/vid.mp4"), video_frames, step, fps=fps)
+        # print()
+        # exit(0)
     def log_paths_as_videos(self, paths, step, max_videos_to_save=2, fps=10, video_title='video'):
 
         # reshape the rollouts

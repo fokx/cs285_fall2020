@@ -55,9 +55,11 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             self.mean_net = ptu.build_mlp(
                 input_size=self.ob_dim,
                 output_size=self.ac_dim,
-                n_layers=self.n_layers, size=self.size,
+                n_layers=self.n_layers,
+                size=self.size,
             )
             self.mean_net.to(ptu.device)
+            # TODO ? what does logstd do?
             self.logstd = nn.Parameter(
                 torch.zeros(self.ac_dim, dtype=torch.float32, device=ptu.device)
             )
@@ -78,10 +80,10 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         if len(obs.shape) > 1:
             observation = obs
         else:
-            observation = obs[None]
+            observation = obs[None]  # make a minibatch, if a=array([1, 2]), then a[None]=array([[1, 2]])
+        # TODO done return the action that the policy prescribes
+        return self.forward(ptu.from_numpy(observation))
 
-        # TODO return the action that the policy prescribes
-        raise NotImplementedError
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -93,7 +95,17 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # return more flexible objects, such as a
     # `torch.distributions.Distribution` object. It's up to you!
     def forward(self, observation: torch.FloatTensor) -> Any:
-        raise NotImplementedError
+        if self.discrete:
+            forward_pass = self.logits_na
+        else:
+            forward_pass = self.mean_net
+
+        # observation = torch.from_numpy(observation.astype(np.float32))
+
+        action = forward_pass(observation)
+
+        # return action.detach().numpy()
+        return action
 
 
 #####################################################
@@ -108,8 +120,16 @@ class MLPPolicySL(MLPPolicy):
             self, observations, actions,
             adv_n=None, acs_labels_na=None, qvals=None
     ):
-        # TODO: update the policy and return the loss
-        loss = TODO
+        # TODO done update the policy and return the loss
+        # for the very first train, the action is from expert data
+        actions_got = self.get_action(observations)
+        # actions_got = torch.from_numpy(actions_got)
+        actions = ptu.from_numpy(actions)
+        loss = self.loss(actions_got, actions)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step() #  This step function will take care of updating all the parameters that were passed to that optimizer's constructor.
+
         return {
             # You can add extra logging information here, but keep this line
             'Training Loss': ptu.to_numpy(loss),

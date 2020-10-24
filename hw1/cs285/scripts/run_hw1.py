@@ -5,6 +5,10 @@ from cs285.infrastructure.rl_trainer import RL_Trainer
 from cs285.agents.bc_agent import BCAgent
 from cs285.policies.loaded_gaussian_policy import LoadedGaussianPolicy
 
+import matplotlib
+matplotlib.use('TkAgg')  # Qt5Agg, Qt4Agg and TkAgg
+# import matplotlib.pyplot as plt
+
 class BC_Trainer(object):
 
     def __init__(self, params):
@@ -47,6 +51,7 @@ class BC_Trainer(object):
             eval_policy=self.rl_trainer.agent.actor,
             relabel_with_expert=self.params['do_dagger'],
             expert_policy=self.loaded_expert_policy,
+            # expert_policy is a nnet, expert_data are observation-action pairs
         )
 
 
@@ -56,8 +61,8 @@ def main():
     parser.add_argument('--expert_policy_file', '-epf', type=str, required=True)  # relative to where you're running this script from
     parser.add_argument('--expert_data', '-ed', type=str, required=True) #relative to where you're running this script from
     parser.add_argument('--env_name', '-env', type=str, help='choices: Ant-v2, Humanoid-v2, Walker-v2, HalfCheetah-v2, Hopper-v2', required=True)
-    parser.add_argument('--exp_name', '-exp', type=str, default='pick an experiment name', required=True)
-    parser.add_argument('--do_dagger', action='store_true')
+    parser.add_argument('--exp_name', '-exp', type=str, default='pick an experiment name', required=True) # tensorboardx log_dir name
+    parser.add_argument('--do_dagger', action='store_true') # relabel
     parser.add_argument('--ep_len', type=int)
 
     parser.add_argument('--num_agent_train_steps_per_iter', type=int, default=1000)  # number of gradient steps for training policy (per iter in n_iter)
@@ -68,7 +73,11 @@ def main():
                         default=1000)  # eval data collected (in the env) for logging metrics
     parser.add_argument('--train_batch_size', type=int,
                         default=100)  # number of sampled data points to be used per gradient/train step
-
+    # TODO ?done diff train_batch_size, batch_size :
+    ''' 
+    train_batch_size is used in   RL_trainer.train_agent
+    batch_size is used in  RL_trainer.collect_training_trajectories
+    '''
     parser.add_argument('--n_layers', type=int, default=2)  # depth, of policy to be learned
     parser.add_argument('--size', type=int, default=64)  # width of each layer, of policy to be learned
     parser.add_argument('--learning_rate', '-lr', type=float, default=5e-3)  # LR for supervised learning

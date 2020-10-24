@@ -71,6 +71,7 @@ You will see scalar summaries as well as videos of your trained policies (in the
 You can choose to visualize specific runs with a comma-separated list:
 ```
 tensorboard --logdir data/run1,data/run2,data/run3...
+~~~~
 ```
 
 If running on Colab, you will be using the `%tensorboard` [line magic](https://ipython.readthedocs.io/en/stable/interactive/magics.html) to do the same thing; see the [notebook](cs285/scripts/run_hw1.ipynb) for more details.
