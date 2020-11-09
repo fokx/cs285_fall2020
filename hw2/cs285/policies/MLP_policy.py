@@ -111,6 +111,36 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
       # action = action[None]
       return action
 
+  # def get_action_cpu(self, obs: np.ndarray) -> np.ndarray:
+  #   if len(obs.shape) > 1:
+  #     observation = obs
+  #   else:
+  #     observation = obs[None]  # make a minibatch, if a=array([1, 2]), then a[None]=array([[1, 2]])
+  #   # return the action that the policy prescribes
+  #   if self.discrete:
+  #     # observation = torch.from_numpy(observation).float().to(torch.device("cpu"))
+  #     observation = torch.tensor(observation, requires_grad=False, device=torch.device("cpu"))
+  #     action_dist = self.forward_cpu(observation)
+  #     action = action_dist.sample()
+  #     # # action_2 = action_2[0]
+  #     # # return int(action)
+  #     # # return action
+  #     # forward_pass = self.logits_na
+  #     # action_prob = forward_pass(observation)
+  #     # # action_dist = distributions.Categorical(probs=action_prob)
+  #     # action2 = torch.argmax(action_prob)
+  #     # action2 = action2[None]
+  #     return action
+  #   else:
+  #     observation = torch.from_numpy(observation).float().to(torch.device("cpu"))
+  #     self.mean_net.to(ptu.device)
+  #     self.logstd.to(ptu.device)
+  #
+  #     action_dist = self.forward(observation)
+  #     action = action_dist.sample()
+  #     # action = action[None]
+  #     return action
+
   # update/train this policy
   def update(self, observations, actions, **kwargs):
     raise NotImplementedError
@@ -133,6 +163,30 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
       mean = mean.squeeze(dim=-1)
       # mean = mean[0]
       logstd = self.logstd
+      # TODO squeeze logstd
+      # logstd = logstd[0]
+      # action_distribution = distributions.MultivariateNormal(mean, scale_tril=torch.diag(logstd))
+      action_distribution = distributions.Normal(loc=mean,
+                                                 scale=torch.exp(logstd))  # will the scale overflow action space?
+      return action_distribution
+    # return action.detach().numpy()
+    # return action_distribution
+
+  def forward_cpu(self, observation: torch.FloatTensor):
+    # observation = torch.from_numpy(observation.astype(np.float32))
+    if self.discrete:
+      self.logits_na.to(torch.device("cpu"))
+      action_logits = self.logits_na(observation)
+      action_dist = distributions.Categorical(logits=action_logits)
+      # action = torch.argmax(action)
+      # action = action[None]
+      return action_dist
+    else:
+      self.mean_net.to(torch.device("cpu"))
+      mean = self.mean_net(observation)
+      mean = mean.squeeze(dim=-1)
+      # mean = mean[0]
+      self.logstd.to(torch.device("cpu"))
       # TODO squeeze logstd
       # logstd = logstd[0]
       # action_distribution = distributions.MultivariateNormal(mean, scale_tril=torch.diag(logstd))

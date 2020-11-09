@@ -170,13 +170,24 @@ class RL_Trainer(object):
       return expertdata, 0, None
 
     print("\nCollecting data to be used for training...")
-    paths, envsteps_this_batch = utils.sample_trajectories(self.env,
-                                                           collect_policy,
-                                                           min_timesteps_per_batch=
-                                                           batch_size,
-                                                           max_path_length=self.params['ep_len']
-                                                           # render, render_mode ?
-                                                           )
+    device = ptu.device
+    if "cpu" in device.type:
+      paths, envsteps_this_batch = utils.sample_trajectories_NOCUDA(self.env,
+                                                                  collect_policy,
+                                                                  min_timesteps_per_batch=
+                                                                  batch_size,
+                                                                  max_path_length=self.params['ep_len']
+                                                                  # render, render_mode ?
+                                                                  )
+    else:
+      paths, envsteps_this_batch = utils.sample_trajectories(self.env,
+                                                                  collect_policy,
+                                                                  min_timesteps_per_batch=
+                                                                  batch_size,
+                                                                  max_path_length=self.params['ep_len']
+                                                                  # render, render_mode ?
+                                                                  )
+
     train_video_paths = None
     if self.log_video:
       print('\nCollecting train rollouts to be used for saving videos...')
