@@ -201,13 +201,14 @@ class RL_Trainer(object):
     paths, envsteps_this_batch = utils.sample_trajectories(self.env,
                                                            collect_policy,
                                                            min_timesteps_per_batch=batch_size,
-                                                           max_path_length=self.params['ep_len']
-                                                           # render, render_mode ?
-                                                           )
+                                                           max_path_length=self.params['ep_len'],
+                                                           num_threads=6)
     train_video_paths = None
+    
     if self.log_video:
       print('\nCollecting train rollouts to be used for saving videos...')
-      train_video_paths = utils.sample_n_trajectories(self.env, collect_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)
+      train_video_paths = utils.sample_n_trajectories(self.env, collect_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True,
+                                                      num_threads=6)
 
     return paths, envsteps_this_batch, train_video_paths
 
@@ -218,7 +219,7 @@ class RL_Trainer(object):
       # TODO sample some data from the data buffer
       # HINT1: use the agent's sample function
       # HINT2: how much data = self.params['train_batch_size']
-      ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch =\
+      ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = \
         self.agent.sample(batch_size=self.params["train_batch_size"])
 
       # TODO use the sampled data to train an agent
@@ -240,12 +241,14 @@ class RL_Trainer(object):
     print("\nCollecting data for eval...")
     eval_paths, eval_envsteps_this_batch = utils.sample_trajectories(self.env, eval_policy,
                                                                      self.params['eval_batch_size'],
-                                                                     self.params['ep_len'])
+                                                                     self.params['ep_len'],
+                                                                     num_threads=6)
 
     # save eval rollouts as videos in tensorboard event file
     if self.log_video and train_video_paths != None:
       print('\nCollecting video rollouts eval')
-      eval_video_paths = utils.sample_n_trajectories(self.env, eval_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True)
+      eval_video_paths = utils.sample_n_trajectories(self.env, eval_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True,
+                                                     num_threads=6)
 
       # save train/eval videos
       print('\nSaving train rollouts as videos...')

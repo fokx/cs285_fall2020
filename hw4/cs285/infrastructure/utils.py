@@ -1,7 +1,6 @@
 import numpy as np
 import time
 import copy
-import itertools
 
 
 ############################################
@@ -112,7 +111,7 @@ def sample_trajectory(env, policy, max_path_length, render=False, render_mode='r
 
 
 def sample_trajectories_light(env, policy, min_timesteps_per_batch, max_path_length, render=False,
-                              render_mode='rgb_array'):
+                              render_mode='rgb_array', num_threads=None):
   # TODO*
   """
       Collect rollouts until we have collected min_timesteps_per_batch steps.
@@ -127,7 +126,7 @@ def sample_trajectories_light(env, policy, min_timesteps_per_batch, max_path_len
     mp.set_start_method('spawn')
   except RuntimeError:
     pass
-  num_cpu = mp.cpu_count()
+  num_cpu = mp.cpu_count() if num_threads is None else num_threads
   timesteps_this_batch = 0
   paths_mgr = mp.Manager()
   paths_final = []
@@ -156,7 +155,7 @@ def sample_trajectories_light(env, policy, min_timesteps_per_batch, max_path_len
   return paths_final, timesteps_this_batch
 
 
-def sample_n_trajectories_light(env, policy, ntraj, max_path_length, render=False, render_mode='rgb_array'):
+def sample_n_trajectories_light(env, policy, ntraj, max_path_length, render=False, render_mode='rgb_array', num_threads=None):
   # TODO*
   """
       Collect ntraj rollouts.
@@ -168,7 +167,9 @@ def sample_n_trajectories_light(env, policy, ntraj, max_path_length, render=Fals
     mp.set_start_method('spawn')
   except RuntimeError:
     pass
-  num_cpu = mp.cpu_count()
+
+  num_cpu = mp.cpu_count() if num_threads is None else num_threads
+
   num_iter_full_run, num_iter_residual = divmod(ntraj, num_cpu)
   paths = mp.Manager().list()
   for i in range(num_iter_full_run):
