@@ -76,6 +76,7 @@ def main():
 
   parser.add_argument('--seed', type=int, default=1)
   parser.add_argument('--no_gpu', '-ngpu', action='store_true')
+  parser.add_argument('--no_parallel', '-npara', action='store_true')
   parser.add_argument('--which_gpu', '-gpu_id', default=0)
   parser.add_argument('--video_log_freq', type=int, default=1)  # -1 to disable
   parser.add_argument('--scalar_log_freq', type=int, default=1)  # -1 to disable

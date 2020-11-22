@@ -189,7 +189,6 @@ class RL_Trainer(object):
                 envsteps_this_batch: the sum over the numbers of environment steps in paths
                 train_video_paths: paths which also contain videos for visualization purposes
     """
-    # TODO done: get this from hw1
     # if your load_initial_expertdata is None, then you need to collect new trajectories at *every* iteration
     if itr == 0 and load_initial_expertdata is not None:
       # load expert data
@@ -198,13 +197,14 @@ class RL_Trainer(object):
       return expertdata, 0, None
 
     print("\nCollecting data to be used for training...")
+    # TODO: check reason of broken pipe in `heavy`
     paths, envsteps_this_batch = utils.sample_trajectories(self.env,
                                                            collect_policy,
                                                            min_timesteps_per_batch=batch_size,
                                                            max_path_length=self.params['ep_len'],
                                                            num_threads=6)
     train_video_paths = None
-    
+
     if self.log_video:
       print('\nCollecting train rollouts to be used for saving videos...')
       train_video_paths = utils.sample_n_trajectories(self.env, collect_policy, MAX_NVIDEO, MAX_VIDEO_LEN, True,
@@ -239,10 +239,11 @@ class RL_Trainer(object):
 
     # collect eval trajectories, for logging
     print("\nCollecting data for eval...")
-    eval_paths, eval_envsteps_this_batch = utils.sample_trajectories(self.env, eval_policy,
-                                                                     self.params['eval_batch_size'],
-                                                                     self.params['ep_len'],
-                                                                     num_threads=6)
+    eval_paths, eval_envsteps_this_batch = \
+      utils.sample_trajectories(self.env, eval_policy,
+                                               self.params['eval_batch_size'],
+                                               self.params['ep_len'],
+                                               num_threads=6)
 
     # save eval rollouts as videos in tensorboard event file
     if self.log_video and train_video_paths != None:
@@ -330,5 +331,6 @@ class RL_Trainer(object):
     all_losses = np.array([log['Training Loss'] for log in all_logs])
     np.save(self.params['logdir'] + '/itr_' + str(itr) + '_losses.npy', all_losses)
     self.fig.clf()
+    # print(all_losses)
     plt.plot(all_losses)
     self.fig.savefig(self.params['logdir'] + '/itr_' + str(itr) + '_losses.png', dpi=200, bbox_inches='tight')

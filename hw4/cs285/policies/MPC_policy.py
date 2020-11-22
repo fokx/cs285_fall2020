@@ -95,9 +95,10 @@ class MPCPolicy(BasePolicy):
     # For each candidate action sequence, predict a sequence of
     # states for each dynamics model in your ensemble.
     predicted_obs = np.zeros(shape=(N, H, obs.shape[0]))
+    predicted_obs_after_step_i = None
     for step_i in range(H):  # iterate in one step in horizon H
       # x=array([1, 2]); np.repeat(x[np.newaxis,:],3,axis=0)--> array([[1, 2],[1, 2],[1, 2]])
-      if step_i==0:
+      if predicted_obs_after_step_i is None:
         obs_batch = np.repeat(obs[np.newaxis, :], N, axis=0)
       else:
         obs_batch = predicted_obs_after_step_i

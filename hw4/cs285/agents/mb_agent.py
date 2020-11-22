@@ -40,17 +40,24 @@ class MBAgent(BaseAgent):
     # NOTE: each model in the ensemble is trained on a different random batch of size batch_size
     losses = []
     num_data = ob_no.shape[0]
-    num_data_per_env = int(num_data / self.ensemble_size)
+    num_data_per_ens = int(num_data / self.ensemble_size)
 
     for i in range(self.ensemble_size):
       # select which datapoints to use for this model of the ensemble
       # you might find the num_data_per_env variable defined above useful
 
-      # TODO(Q1) done
-      idx = np.random.randint(ac_na.shape[0], size=num_data_per_env)
+      observations_tmp = ob_no[i * num_data_per_ens: (i + 1) * num_data_per_ens]
+      # actions = ac_na[i * num_data_per_ens: (i + 1) * num_data_per_ens]
+      # next_observations = next_ob_no[i * num_data_per_ens: (i + 1) * num_data_per_ens]
+
+      idx = np.random.randint(ac_na.shape[0], size=num_data_per_ens)
       observations = ob_no[idx, :]
       actions = ac_na[idx, :]
       next_observations = next_ob_no[idx, :]
+
+      # the effect of random sampling seems subtle
+      assert observations_tmp.shape == observations.shape
+
 
       # use datapoints to update one of the dyn_models
       model = self.dyn_models[i]
@@ -81,7 +88,7 @@ class MBAgent(BaseAgent):
     }
 
     # update the actor's data_statistics too, so actor.get_action can be calculated correctly
-    self.actor.data_statistics = self.data_statistics # self.actor: cs285.policies.MPC_policy.MPCPolicy
+    self.actor.data_statistics = self.data_statistics  # self.actor: cs285.policies.MPC_policy.MPCPolicy
 
   def sample(self, batch_size):
     # NOTE: sampling batch_size * ensemble_size,

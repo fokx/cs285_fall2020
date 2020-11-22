@@ -51,7 +51,7 @@ class FFModel(nn.Module, BaseModel):
     self.delta_mean = ptu.from_numpy(delta_mean)
     self.delta_std = ptu.from_numpy(delta_std)
 
-  def forward(
+  def forward( # input and output are both tensors
       self,
       obs_unnormalized,
       acs_unnormalized,
@@ -77,18 +77,17 @@ class FFModel(nn.Module, BaseModel):
         2. `delta_pred_normalized` which is the normalized (i.e. not
             unnormalized) output of the delta network. This is needed
     """
-    obs_unnormalized = ptu.from_numpy(obs_unnormalized)
-    obs_mean = ptu.from_numpy(obs_mean)
-    obs_std = ptu.from_numpy(obs_std)
+    # obs_unnormalized = ptu.from_numpy(obs_unnormalized)
+    # obs_mean = ptu.from_numpy(obs_mean)
+    # obs_std = ptu.from_numpy(obs_std)
+    #
+    # acs_unnormalized = ptu.from_numpy(acs_unnormalized)
+    # acs_mean = ptu.from_numpy(acs_mean)
+    # acs_std = ptu.from_numpy(acs_std)
+    #
+    # delta_mean = ptu.from_numpy(delta_mean)
+    # delta_std = ptu.from_numpy(delta_std)
 
-    acs_unnormalized = ptu.from_numpy(acs_unnormalized)
-    acs_mean = ptu.from_numpy(acs_mean)
-    acs_std = ptu.from_numpy(acs_std)
-
-    delta_mean = ptu.from_numpy(delta_mean)
-    delta_std = ptu.from_numpy(delta_std)
-
-    # TODO(Q1) done normalize input data to mean 0, std 1
     obs_normalized = normalize(obs_unnormalized, obs_mean, obs_std)
     acs_normalized = normalize(acs_unnormalized, acs_mean, acs_std)
 
@@ -119,6 +118,9 @@ class FFModel(nn.Module, BaseModel):
     :return: a numpy array of the predicted next-states (s_t+1)
     """
     # TODO(Q1) done get numpy array of the predicted next-states (s_t+1)
+    obs = ptu.from_numpy(obs)
+    acs = ptu.from_numpy(acs)
+    data_statistics = {k: ptu.from_numpy(v) for k,v in data_statistics.items()}
     prediction, delta_pred_normalized = \
       self.forward(obs, acs, data_statistics['obs_mean'], data_statistics['obs_std'],
                    data_statistics['acs_mean'], data_statistics['acs_std'],
@@ -142,31 +144,24 @@ class FFModel(nn.Module, BaseModel):
     :return:
     """
 
+    observations = ptu.from_numpy(observations)
+    actions = ptu.from_numpy(actions)
+    next_observations = ptu.from_numpy(next_observations)
     # Hint: you should use `data_statistics['delta_mean']` and
     # `data_statistics['delta_std']`, which keep track of the mean
     # and standard deviation of the model.
-    '''
-     self.data_statistics = {
-      'obs_mean': np.mean(self.replay_buffer.obs, axis=0),
-      'obs_std': np.std(self.replay_buffer.obs, axis=0),
-      'acs_mean': np.mean(self.replay_buffer.acs, axis=0),
-      'acs_std': np.std(self.replay_buffer.acs, axis=0),
-      'delta_mean': np.mean(self.replay_buffer.next_obs - self.replay_buffer.obs, axis=0),
-      'delta_std': np.std(self.replay_buffer.next_obs - self.replay_buffer.obs, axis=0),
-    }'''
-    self.update_statistics(*list(data_statistics.values()))
+
+    self.update_statistics(*list(data_statistics.values())) # really needed??
+    data_statistics = {k: ptu.from_numpy(v) for k,v in data_statistics.items()}
+
     next_obs_pred, delta_pred_normalized = \
       self.forward(observations, actions, data_statistics['obs_mean'],
                    data_statistics['obs_std'], data_statistics['acs_mean'],
                    data_statistics['acs_std'], data_statistics['delta_mean'],
                    data_statistics['delta_std'])
 
-    next_observations = ptu.from_numpy(next_observations)
-    observations = ptu.from_numpy(observations)
-    obs_mean = ptu.from_numpy(data_statistics['obs_mean'])
-    obs_std = ptu.from_numpy(data_statistics['obs_std'])
     # TODO(Q1) done compute the normalized target for the model.
-    target = normalize(next_observations - observations, obs_mean, obs_std)
+    target = normalize(next_observations - observations, data_statistics['delta_mean'], data_statistics['delta_std'])
 
     loss = self.loss(target, delta_pred_normalized)  # TODO(Q1) compute the loss
 
