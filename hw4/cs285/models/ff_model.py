@@ -77,16 +77,6 @@ class FFModel(nn.Module, BaseModel):
         2. `delta_pred_normalized` which is the normalized (i.e. not
             unnormalized) output of the delta network. This is needed
     """
-    # obs_unnormalized = ptu.from_numpy(obs_unnormalized)
-    # obs_mean = ptu.from_numpy(obs_mean)
-    # obs_std = ptu.from_numpy(obs_std)
-    #
-    # acs_unnormalized = ptu.from_numpy(acs_unnormalized)
-    # acs_mean = ptu.from_numpy(acs_mean)
-    # acs_std = ptu.from_numpy(acs_std)
-    #
-    # delta_mean = ptu.from_numpy(delta_mean)
-    # delta_std = ptu.from_numpy(delta_std)
 
     obs_normalized = normalize(obs_unnormalized, obs_mean, obs_std)
     acs_normalized = normalize(acs_unnormalized, acs_mean, acs_std)
@@ -125,8 +115,7 @@ class FFModel(nn.Module, BaseModel):
       self.forward(obs, acs, data_statistics['obs_mean'], data_statistics['obs_std'],
                    data_statistics['acs_mean'], data_statistics['acs_std'],
                    data_statistics['delta_mean'], data_statistics['delta_std'])
-    prediction = ptu.to_numpy(prediction)
-    return prediction
+    return  ptu.to_numpy(prediction)
 
   def update(self, observations, actions, next_observations, data_statistics):
     """
@@ -143,7 +132,6 @@ class FFModel(nn.Module, BaseModel):
          - 'delta_std'
     :return:
     """
-
     observations = ptu.from_numpy(observations)
     actions = ptu.from_numpy(actions)
     next_observations = ptu.from_numpy(next_observations)
@@ -151,7 +139,7 @@ class FFModel(nn.Module, BaseModel):
     # `data_statistics['delta_std']`, which keep track of the mean
     # and standard deviation of the model.
 
-    self.update_statistics(*list(data_statistics.values())) # really needed??
+    self.update_statistics(*list(data_statistics.values())) # TODO check if really needed??
     data_statistics = {k: ptu.from_numpy(v) for k,v in data_statistics.items()}
 
     next_obs_pred, delta_pred_normalized = \
@@ -163,7 +151,7 @@ class FFModel(nn.Module, BaseModel):
     # TODO(Q1) done compute the normalized target for the model.
     target = normalize(next_observations - observations, data_statistics['delta_mean'], data_statistics['delta_std'])
 
-    loss = self.loss(target, delta_pred_normalized)  # TODO(Q1) compute the loss
+    loss = self.loss(target, delta_pred_normalized)
 
     self.optimizer.zero_grad()
     loss.backward()

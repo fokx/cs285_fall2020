@@ -43,14 +43,10 @@ class MPCPolicy(BasePolicy):
     # TODO(Q1) uniformly sample trajectories and return an array of
     # dimensions (num_sequences, horizon, self.ac_dim) in the range
     # [self.low, self.high]
-    random_action_sequences = np.zeros(shape=(num_sequences, horizon, self.ac_dim))
 
-    for i in range(num_sequences):
-      for j in range(horizon):
-        if num_sequences != 1 and horizon != 1:
-          print(end='')
-        random_action_sequences[i][j] = self.ac_space.sample()
-    return random_action_sequences
+    return np.random.uniform(
+      self.low[0], self.high[0], (num_sequences, horizon, self.ac_dim)
+    )
 
   def get_action(self, obs):
 
@@ -78,6 +74,43 @@ class MPCPolicy(BasePolicy):
     action_to_take = best_action_sequence[0]
     return action_to_take[None]  # Unsqueeze the first index
 
+  def calculate_sum_of_rewards_new(self, obs, candidate_action_sequences, model: FFModel):
+    """
+    :param obs: numpy array with the *current observation*. Shape [D_obs]
+    :param candidate_action_sequences: numpy array with the candidate action
+    sequences. Shape [N, H, D_action] where
+        - N is the number of action sequences considered
+        - H is the horizon
+        - D_action is the action of the dimension
+    :param model: The current dynamics model.
+    :return: numpy array with the sum of rewards for each action sequence.
+    The array should have shape [N].
+
+
+    # You should sum across `self.horizon` time step.
+    # Hint: you should use model.get_prediction and you shouldn't need
+    #       to import pytorch in this file.
+    # Hint: Remember that the model can process observations and actions
+    #       in batch, which can be much faster than looping through each
+    #       action sequence.
+
+    """
+    N = candidate_action_sequences.shape[0]
+    assert self.N == N
+    H = candidate_action_sequences.shape[1]
+    sum_of_rewards = np.zeros(shape=N)
+
+    # For each candidate action sequence, predict a sequence of  states for each dynamics model in your ensemble.
+    # Once you have a sequence of predicted states from each model in your ensemble, calculate the sum of rewards for each sequence using `self.env.get_reward(predicted_obs)`
+    obs = np.repeat(obs[np.newaxis, :], N, axis=0)
+    for t in range(H):
+      obs_predicted = model.get_prediction(obs, candidate_action_sequences[:, t, :], self.data_statistics)
+      rewards, dones = self.env.get_reward(obs_predicted, np.zeros(shape=1)) # reward of coming to the next state
+      sum_of_rewards += rewards  # use and only use one obs to determine reward. can also work in batch mode
+
+    return sum_of_rewards
+
+
   def calculate_sum_of_rewards(self, obs, candidate_action_sequences, model: FFModel):
     """
     :param obs: numpy array with the *current observation*. Shape [D_obs]
@@ -89,6 +122,15 @@ class MPCPolicy(BasePolicy):
     :param model: The current dynamics model.
     :return: numpy array with the sum of rewards for each action sequence.
     The array should have shape [N].
+
+
+    # You should sum across `self.horizon` time step.
+    # Hint: you should use model.get_prediction and you shouldn't need
+    #       to import pytorch in this file.
+    # Hint: Remember that the model can process observations and actions
+    #       in batch, which can be much faster than looping through each
+    #       action sequence.
+
     """
     N = candidate_action_sequences.shape[0]
     H = candidate_action_sequences.shape[1]
@@ -111,25 +153,12 @@ class MPCPolicy(BasePolicy):
     # Once you have a sequence of predicted states from each model in
     # your ensemble, calculate the sum of rewards for each sequence
     # using `self.env.get_reward(predicted_obs)`
-    '''self.env.get_reward
-    Args:
-        observations: (batchsize, obs_dim) or (obs_dim,)
-        actions: (batchsize, ac_dim) or (ac_dim,)
-    Return:
-        r_total: reward of this (o,a) pair, dimension is (batchsize,1) or (1,)
-        done: True if env reaches terminal state, dimension is (batchsize,1) or (1,)
-    '''
     sum_of_rewards = np.zeros(shape=N)
     for action_sequence_i in range(N):
       observations = predicted_obs[action_sequence_i]
       actions = candidate_action_sequences[action_sequence_i]
       # TODO check whether `done` needs to be used?
-      r_total_list, _ = self.env.get_reward(observations, actions) # check whether r_total is a batch?
+      r_total_list, _ = self.env.get_reward(observations, actions)  # actually `actions` is not used in `get_reward`!!
       sum_of_rewards[action_sequence_i] = sum(r_total_list)
-    # You should sum across `self.horizon` time step.
-    # Hint: you should use model.get_prediction and you shouldn't need
-    #       to import pytorch in this file.
-    # Hint: Remember that the model can process observations and actions
-    #       in batch, which can be much faster than looping through each
-    #       action sequence.
+
     return sum_of_rewards
