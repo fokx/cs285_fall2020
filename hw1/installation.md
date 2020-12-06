@@ -1,4 +1,5 @@
 ## Install mujoco:
+
 ```
 mkdir ~/.mujoco
 cd ~/.mujoco
@@ -8,17 +9,18 @@ mv mujoco200_linux mujoco200
 rm mujoco200_linux.zip
 cp <location_of_mjkey.txt> .
 ```
-The above instructions download MuJoCo for Linux. If you are on Mac or Windows, you will need to change the `wget` address to either 
+
+The above instructions download MuJoCo for Linux. If you are on Mac or Windows, you will need to change the `wget`
+address to either
 `https://www.roboti.us/download/mujoco200_macos.zip` or `https://www.roboti.us/download/mujoco200_win64.zip`.
 
 Finally, add the following to bottom of your bashrc:
+
 ```
 export LD_LIBRARY_PATH=~/.mujoco/mujoco200/bin/
 ```
 
 ## Install other dependencies
-
-
 
 There are two options:
 
@@ -52,10 +54,11 @@ A. (Recommended) Install with conda:
 	$ pip install -e .
 	```
 
-This conda environment requires activating it every time you open a new terminal (in order to run code), but the benefit is that the required dependencies for this codebase will not affect existing/other versions of things on your computer. This stand-alone environment will have everything that is necessary.
-
+This conda environment requires activating it every time you open a new terminal (in order to run code), but the benefit
+is that the required dependencies for this codebase will not affect existing/other versions of things on your computer.
+This stand-alone environment will have everything that is necessary.
 
 B. Install on system Python:
-	```
-	pip install -r requirements.txt
-	```
+```
+pip install -r requirements.txt
+```

@@ -1,9 +1,9 @@
 gym==0.17.2
-gym[all]
+#gym[all]
 gym[atari]==0.17.2
 # mujoco: apt-get install libosmesa6-dev patchelf
 mujoco-py==2.0.2.2
-tensorboard==2.3.0
+tensorboard==2.3
 tensorboardX==1.8
 matplotlib
 #matplotlib==2.2.2
@@ -17,6 +17,5 @@ box2d-py
 
 
 #torch==1.5.1
-opencv-python==4.4.0.42
 ipdb==0.13.3
 box2d-py
