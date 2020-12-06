@@ -19,4 +19,3 @@ for logdir in logdirs:
         X.append(v.simple_value)
       elif v.tag == 'Eval_AverageReturn':
         Y.append(v.simple_value)
-    print()

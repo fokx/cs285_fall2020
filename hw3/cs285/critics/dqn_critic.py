@@ -65,7 +65,9 @@ class DQNCritic(BaseCritic):
     qa_t_values = self.q_net(ob_no)
     # gather() for 3d tensor:
     # out[i][j][k] = input[i][ index[i][j][k] ] [k]  # if dim == 1
-    q_t_values = torch.gather(qa_t_values, 1, ac_na.unsqueeze(1)).squeeze(1)
+    q_t_values = torch\
+      .gather(qa_t_values, 1, ac_na.unsqueeze(1))\
+      .squeeze(1)
 
     # TODO compute the Q-values from the target network
     qa_tp1_values = self.q_net_target(next_ob_no)
@@ -74,12 +76,12 @@ class DQNCritic(BaseCritic):
       # In double Q-learning, the best action is selected using the Q-network that
       # is being updated, but the Q-value for this action is obtained from the
       # target Q-network. See page 5 of https://arxiv.org/pdf/1509.06461.pdf for more details.
-      q_phi_s_prime_a_prime = self.q_net(next_ob_no) # (32,6)
-      _, argmax = q_phi_s_prime_a_prime.max(dim=1) #  get max of every row.  (32,)
+      q_phi_s_prime_a_prime = self.q_net(next_ob_no)  # (32,6)
+      _, argmax = q_phi_s_prime_a_prime.max(dim=1)  # get max of every row.  (32,)
       # q_phi_prime_of_argmax_q_phi = qa_tp1_values[argmax] # torch.Size([32, 6])[(32,)] -> torch.Size([32, 6])
-      q_phi_prime_of_argmax_q_phi = qa_tp1_values.gather(1, argmax.view(-1,1)) # shape: torch.Size([32, 1])
+      q_phi_prime_of_argmax_q_phi = qa_tp1_values.gather(1, argmax.view(-1, 1))  # shape: torch.Size([32, 1])
       q_phi_prime_of_argmax_q_phi = q_phi_prime_of_argmax_q_phi.squeeze()
-      q_tp1 = q_phi_prime_of_argmax_q_phi # rename
+      q_tp1 = q_phi_prime_of_argmax_q_phi  # rename
       '''
       `gather` example:
       m = torch.randn(4,2)
@@ -100,15 +102,19 @@ class DQNCritic(BaseCritic):
       '''
 
     else:
-      q_tp1, _ = qa_tp1_values.max(dim=1) # one example shape of qa_tp1_values: torch.Size([32, 6]). get max of every row, q_tp1 shape: 32
+      q_tp1, _ = qa_tp1_values.max(
+        dim=1)  # one example shape of qa_tp1_values: torch.Size([32, 6]). get max of every row, q_tp1 shape: 32
 
     # TODO compute targets for minimizing Bellman error
     # HINT: as you saw in lecture, this would be:
     # currentReward + self.gamma * qValuesOfNextTimestep * (not terminal)
-    terminal_n = terminal_n.bool()
-    not_terminal_n = ~terminal_n
-    not_terminal_n = not_terminal_n.float()
-    target = reward_n + self.gamma * q_tp1 * not_terminal_n
+    # terminal_n = terminal_n.bool()
+    # not_terminal_n1 = ~terminal_n
+    # not_terminal_n1 = not_terminal_n1.float()
+    # not_terminal_n2 = (1 - terminal_n)
+    # import numpy as np
+    # assert  np.all(ptu.to_numpy(not_terminal_n2) == ptu.to_numpy(not_terminal_n))
+    target = reward_n + self.gamma * q_tp1 * (1 - terminal_n)
     target = target.detach()
 
     assert q_t_values.shape == target.shape

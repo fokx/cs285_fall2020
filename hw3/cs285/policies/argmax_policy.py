@@ -18,7 +18,7 @@ class ArgMaxPolicy(object):
     observation = ptu.from_numpy(observation)
     action_values = self.critic.q_net(observation)
     # action_values shape: torch.Size([1, 1, 6])
-    max_action_value1, action1 = action_values.max(dim=-1) # unpack (max, argmax)
-    max_action_value2, action2 = action_values.max(dim=1) # unpack (max, argmax)
+    # max_action_value1, action1 = action_values.max(dim=-1) # unpack (max, argmax)
+    max_action_value, action = action_values.max(dim=1) # unpack (max, argmax)
 
-    return action2.squeeze()
+    return action.squeeze()

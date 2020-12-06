@@ -84,31 +84,16 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
   ##################################
 
-  # query the policy with observation(s) to get selected action(s)
+  # query the policy withx observation(s) to get selected action(s)
   def get_action(self, obs: np.ndarray) -> np.ndarray:
     if len(obs.shape) > 1:
       observation = obs
     else:
       observation = obs[None]  # make a minibatch, if a=array([1, 2]), then a[None]=array([[1, 2]])
     # return the action that the policy prescribes
-    if self.discrete:
-      observation = ptu.from_numpy(observation)
-      action_dist = self.forward(observation)
-      action = action_dist.sample()
-      # # action_2 = action_2[0]
-      # # return int(action)
-      # # return action
-      # forward_pass = self.logits_na
-      # action_prob = forward_pass(observation)
-      # # action_dist = distributions.Categorical(probs=action_prob)
-      # action2 = torch.argmax(action_prob)
-      # action2 = action2[None]
-      return action
-    else:
-      action_dist = self.forward(ptu.from_numpy(observation))
-      action = action_dist.sample()
-      # action = action[None]
-      return action
+    action_dist = self.forward(ptu.from_numpy(observation))
+    action = action_dist.sample()
+    return action
 
   # update/train this policy
   def update(self, observations, actions, **kwargs):
@@ -128,17 +113,24 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
       # action = action[None]
       return action_dist
     else:
+      # batch_mean = self.mean_net(observation)
+      # scale_tril = torch.diag(torch.exp(self.logstd))
+      # batch_dim = batch_mean.shape[0]
+      # batch_scale_tril = scale_tril.repeat(batch_dim, 1, 1)
+      # action_distribution2 = distributions.MultivariateNormal(
+      #   batch_mean,
+      #   scale_tril=batch_scale_tril,
+      # )
+
       mean = self.mean_net(observation)
       mean = mean.squeeze(dim=-1)
-      # mean = mean[0]
       logstd = self.logstd
-      # logstd = logstd[0]
-      # action_distribution = distributions.MultivariateNormal(mean, scale_tril=torch.diag(logstd))
       action_distribution = distributions.Normal(loc=mean,
                                                  scale=torch.exp(logstd))  # will the scale overflow action space?
+
+      # check `action_distribution2` == `action_distribution`?
       return action_distribution
-    # return action.detach().numpy()
-    # return action_distribution
+
 
 
 #####################################################

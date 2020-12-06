@@ -102,7 +102,7 @@ def main():
 
   if not (os.path.exists(data_path)):
     os.makedirs(data_path)
-  # Originally, the blank after 'hw3' can be a pain! ^v^
+  # Originally, the blank after 'hw3' can be a pain!
   # logdir = 'hw3_ ' + args.exp_name + '_' + args.env_name + '_' + time.strftime("%d-%m-%Y_%H-%M-%S")
   logdir = 'hw3_' + args.exp_name + '_' + args.env_name + '_' + time.strftime("%d-%m-%Y_%H-%M-%S")
   logdir = os.path.join(data_path, logdir)

@@ -82,7 +82,7 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
     #     b) and computing the target values as r(s, a) + gamma * V(s')
     # every time, update this critic using the observations and targets
     #
-    # TODO!: Do I need to cut V(s) too?
+    # TODO!: Do I need to cut V(s) too? --no
     # HINT: don't forget to use terminal_n to cut off the V(s') (ie set it
     #       to 0) when a terminal state is reached
     # HINT: make sure to squeeze the output of the critic_network to ensure
@@ -90,25 +90,19 @@ class BootstrappedContinuousCritic(nn.Module, BaseCritic):
 
     # fn signature:   def update(self, ob_no, ac_na, next_ob_no, reward_n, terminal_n):
 
-    # ob_no = ptu.from_numpy(ob_no)
-    # next_ob_no = ptu.from_numpy(next_ob_no)
-    # reward_n = ptu.from_numpy(reward_n)
-    # terminal_n = ptu.from_numpy(terminal_n)
-    for i in range(self.num_grad_steps_per_target_update * self.num_target_updates):
-      for j in range(self.num_grad_steps_per_target_update):
+    for i in range(self.num_target_updates * self.num_grad_steps_per_target_update):
+      if i % self.num_grad_steps_per_target_update == 0:
         # update target for num_target_updates times in total
-        V_s_prime = self.critic_network(next_ob_no)
-        V_s_prime = V_s_prime.squeeze()  # why squeeze()? because nnet operates at batch. torch.Size([1000, 1])-> 1000
+        V_s_prime = self.critic_network(next_ob_no).squeeze()  # check if default param is 1
         mask = (terminal_n == 1.0)
-        V_s_prime_masked = V_s_prime.masked_fill(mask, 0.)
-        V_s_prime = V_s_prime_masked  # use masked V(s')
-        # assert reward_n.shape == V_s_prime.shape # TODO-assert
-        # assert (self.gamma * V_s_prime).shape == V_s_prime.shape  # maybe unnecessary
+        V_s_prime = V_s_prime.masked_fill(mask, 0.)
+        # assert reward_n.shape == V_s_prime.shape
+        # assert (self.gamma * V_s_prime).shape == V_s_prime.shape
         target = reward_n + self.gamma * V_s_prime
+        target = target.detach()
 
-      V_s = self.critic_network(ob_no)
-      V_s = V_s.squeeze()
-      # assert V_s.shape == target.shape # TODO-assert
+      V_s = self.critic_network(ob_no).squeeze()
+      # assert V_s.shape == target.shape
       loss = self.loss(V_s, target)
       self.optimizer.zero_grad()
       loss.backward()

@@ -32,10 +32,6 @@ class ACAgent(BaseAgent):
     self.replay_buffer = ReplayBuffer()
 
   def train(self, ob_no, ac_na, re_n, next_ob_no, terminal_n):
-    # TODO Implement the following pseudocode:
-    # for agent_params['num_critic_updates_per_agent_update'] steps,
-    #     update the critic :
-
     ob_no = ptu.from_numpy(ob_no)
     next_ob_no = ptu.from_numpy(next_ob_no)
     terminal_n = ptu.from_numpy(terminal_n)
@@ -43,15 +39,15 @@ class ACAgent(BaseAgent):
 
     ac_na = ptu.from_numpy(ac_na)
 
+    loss_critic = 0.
     for i in range(self.agent_params['num_critic_updates_per_agent_update']):
-      loss_critic = self.critic.update(ob_no, ac_na, next_ob_no, re_n, terminal_n)
+      loss_critic += self.critic.update(ob_no, ac_na, next_ob_no, re_n, terminal_n)
 
     # advantage = estimate_advantage(...) :
     adv_n = self.estimate_advantage(ob_no, next_ob_no, re_n, terminal_n) # a tensor is returned
-    # for agent_params['num_actor_updates_per_agent_update'] steps,
-    #     update the actor :
+    loss_actor = 0.
     for i in range(self.agent_params['num_actor_updates_per_agent_update']):
-      loss_actor = self.actor.update(ob_no, ac_na, adv_n)
+      loss_actor += self.actor.update(ob_no, ac_na, adv_n)
 
     loss = OrderedDict()
     loss['Critic_Loss'] = loss_critic
@@ -68,18 +64,21 @@ class ACAgent(BaseAgent):
     # 4) calculate advantage (adv_n) as A(s, a) = Q(s, a) - V(s)
 
 
-    V_s_prime = self.critic.critic_network(next_ob_no)
-    V_s_prime = V_s_prime.squeeze()
-    mask = (terminal_n == 1.)
-    V_s_prime= V_s_prime.masked_fill(mask, 0.)
+    # V_s_prime = self.critic.critic_network(next_ob_no)
+    # V_s_prime = V_s_prime.squeeze()
+    # mask = (terminal_n == 1.)
+    # V_s_prime= V_s_prime.masked_fill(mask, 0.)
+    #
+    # V_s = self.critic.critic_network(ob_no)
+    # V_s = V_s.squeeze()
+    # # assert V_s_prime.ndim == V_s.ndim     # TODO-assert enable this assert in debug
+    # adv_n2 = re_n + self.gamma * V_s_prime - V_s
 
-    V_s = self.critic.critic_network(ob_no)
-    V_s = V_s.squeeze()
-    # assert V_s_prime.ndim == V_s.ndim     # TODO-assert enable this assert in debug
-    adv_n = re_n + self.gamma * V_s_prime - V_s
+    # another way to calculate:
+    V_s_prime = re_n + (1 - terminal_n) * self.gamma * self.critic.forward(next_ob_no)
+    adv_n = V_s_prime - self.critic.forward(ob_no)
+    # assert adv_n2 == adv_n
 
-    # if self.standardize_advantages:
-    #   adv_n = (adv_n - np.mean(adv_n)) / (np.std(adv_n) + 1e-8)
     if self.standardize_advantages:
       adv_n = (adv_n - torch.mean(adv_n)) / (torch.std(adv_n) + 1e-8)
     return adv_n

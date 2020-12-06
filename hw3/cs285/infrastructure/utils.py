@@ -120,6 +120,8 @@ def sample_trajectories(env, policy, min_timesteps_per_batch, max_path_length, r
     path = sample_trajectory(env, policy, max_path_length, render, render_mode)
     paths.append(path)
     timesteps_this_batch += get_pathlength(path)
+    print('At timestep:    ', timesteps_this_batch, '/', min_timesteps_per_batch, end='\r')
+
 
   return paths, timesteps_this_batch
 

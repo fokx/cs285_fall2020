@@ -40,6 +40,7 @@ def register_custom_envs():
 def get_env_kwargs(env_name):
   if env_name in ['MsPacman-v0', 'PongNoFrameskip-v4']:
     kwargs = {
+      # 'learning_starts': 500, # for fast debug
       'learning_starts': 50000,
       'target_update_freq': 10000,
       'replay_buffer_size': int(1e6),
@@ -101,7 +102,14 @@ class Ipdb(nn.Module):
     ipdb.set_trace()
     return x
 
-
+'''someone's solution(https://github.com/alyd/homework_fall2020):
+class PreprocessAtari(nn.Module):
+  def forward(self, x):
+    if x.dim() == 3:
+      x = x.unsqueeze(0)
+    x = x.permute(0, 3, 1, 2).contiguous()
+    return x / 255.
+'''
 class PreprocessAtari(nn.Module):
   def forward(self, x):
     x = x.permute(0, 3, 1, 2).contiguous()
