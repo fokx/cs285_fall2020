@@ -20,7 +20,9 @@
     
      You should expect to achieve an average return of around180 by the end of training:
     /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/../../data/q3_b40000_r0.005_LunarLanderContinuous-v2_21-10-2020_15-02-24
-    /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/../../data/q3_b40000_r0.005_LunarLanderContinuous-v2_21-10-2020_17-51-22
+    /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/../../data/q3_b40000_r0.005_LunarLanderContinuous-v2_21-10-2020_17-51-22 # time: 8804
+
+    /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/../../data/q3_b40000_r0.005_LunarLanderContinuous-v2_09-11-2020_21-11-10 # time: 4104    
 
 ### q1(discrete)
     tensorboard --logdir /git/py.code/hw2/homework_fall2020/hw2/data/q1_sb_rtg_dsa_CartPole-v0_20-10-2020_13-59-47 --port 7001

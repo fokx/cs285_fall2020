@@ -1,3 +1,15 @@
+## speed comparison of parallel data collection
+When A has finishied(4104s), B has just come to Iteration 58's collecting data for training phase!
+```shell script
+A. Use parallel trajectories collection and train using only CPU:
+/git/py/env/rl0b/bin/python /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/run_hw2.py --env_name LunarLanderContinuous-v2 --ep_len 1000 --discount 0.99 -n 100 -l 2 -s 64 -b 40000 -lr 0.005 --reward_to_go --nn_baseline --exp_name q3_b40000_r0.005 --no_gpu
+
+B. Collecting trajectories single with thread and training using GPU 
+/git/py/env/rl0b/bin/python /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/run_hw2.py --env_name LunarLanderContinuous-v2 --ep_len 1000 --discount 0.99 -n 100 -l 2 -s 64 -b 40000 -lr 0.005 --reward_to_go --nn_baseline --exp_name q3_b40000_r0.005
+
+```
+
+
 ## Setup
 
 You can run this code on your own machine or on Google Colab. 

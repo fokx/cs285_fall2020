@@ -46,7 +46,7 @@ class MBAgent(BaseAgent):
       # select which datapoints to use for this model of the ensemble
       # you might find the num_data_per_env variable defined above useful
 
-      observations_tmp = ob_no[i * num_data_per_ens: (i + 1) * num_data_per_ens]
+      # observations_tmp = ob_no[i * num_data_per_ens: (i + 1) * num_data_per_ens]
       # actions = ac_na[i * num_data_per_ens: (i + 1) * num_data_per_ens]
       # next_observations = next_ob_no[i * num_data_per_ens: (i + 1) * num_data_per_ens]
 
@@ -56,7 +56,7 @@ class MBAgent(BaseAgent):
       next_observations = next_ob_no[idx, :]
 
       # the effect of random sampling seems subtle
-      assert observations_tmp.shape == observations.shape
+      # assert observations_tmp.shape == observations.shape
 
 
       # use datapoints to update one of the dyn_models

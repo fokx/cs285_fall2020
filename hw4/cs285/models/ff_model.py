@@ -139,7 +139,13 @@ class FFModel(nn.Module, BaseModel):
     # `data_statistics['delta_std']`, which keep track of the mean
     # and standard deviation of the model.
 
-    self.update_statistics(*list(data_statistics.values())) # TODO check if really needed??
+    self.update_statistics(*list(data_statistics.values()))
+    # is it really needed??
+    # --seems not needed, this updates ff_model's data statistics, whilst statistics is already updated in mb_agent & MPC_Policy
+    # experiment result shows:
+    #  ls -lh /git/py.code/hw4/homework_fall2020/hw4/cs285/scripts/../../data/hw4_q3_obstacles_obstacles-cs285-v0*
+    # two curves are identical
+    # so not needed
     data_statistics = {k: ptu.from_numpy(v) for k,v in data_statistics.items()}
 
     next_obs_pred, delta_pred_normalized = \

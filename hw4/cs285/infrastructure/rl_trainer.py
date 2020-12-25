@@ -218,7 +218,7 @@ class RL_Trainer(object):
       # HINT1: use the agent's sample function
       # HINT2: how much data = self.params['train_batch_size']
       ob_batch, ac_batch, re_batch, next_ob_batch, terminal_batch = \
-        self.agent.sample(batch_size=self.params["train_batch_size"])
+        self.agent.sample(batch_size=self.params["train_batch_size"]) # size different from replay buffer sample
 
       # TODO use the sampled data to train an agent
       # HINT: use the agent's train function

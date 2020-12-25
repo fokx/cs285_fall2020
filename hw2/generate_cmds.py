@@ -1,24 +1,27 @@
 import os, shutil, glob
-import  subprocess
+import subprocess
 from subprocess import Popen
 import pprint
-base_str = "python /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/run_hw2.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b {b} -lr {lr} -rtg --nn_baseline --exp_name q4_search_b{b}_lr{lr}_rtg_nnbaseline"
+base_str = "/git/py/env/rl0b/bin/python /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/run_hw2.py --env_name InvertedPendulum-v2 --ep_len 1000 --discount 0.9 -n 100 -l 2 -s 64 -b {b} -lr {lr} -rtg  --exp_name q2_b{b}_lr{lr}_rtg"
+for b in [10000, 20000, 30000, 40000, 50000]:
+  for lr in [0.0025, 0.005, 0.01, 0.02, 0.03]:
+    print(base_str.format(b=b, lr=lr))
 # for b in [10000,30000,50000]:
 #   for lr in [0.005,0.01,0.02]:
 #     print(base_str.format(b=b,lr=lr))
 
-base_dir = "/homework_fall2020/hw2/data/"
-# for i in os.listdir(base_dir):
-#   print("tensorboard --logdir  " + os.path.join(base_dir, i))
-cheetah_dirs = glob.glob('/git/py.code/hw2/homework_fall2020/hw2/data/q4_search*')
-for cheetah_dir in cheetah_dirs:
-  # os.system("tensorboard --logdir  {}".format(cheetah_dir))
-  print(end='')
-tb_cmds = ["tensorboard --logdir  {}  --port {}".format(dirname, i+7100) for i, dirname in enumerate(cheetah_dirs)]
-processes_tb = [Popen(cmd, shell=True) for cmd in tb_cmds]
-pprint.pprint(tb_cmds)
-for p in processes_tb:
-  p.wait()
+# base_dir = "/homework_fall2020/hw2/data/"
+# # for i in os.listdir(base_dir):
+# #   print("tensorboard --logdir  " + os.path.join(base_dir, i))
+# cheetah_dirs = glob.glob('/git/py.code/hw2/homework_fall2020/hw2/data/q4_search*')
+# for cheetah_dir in cheetah_dirs:
+#   # os.system("tensorboard --logdir  {}".format(cheetah_dir))
+#   print(end='')
+# tb_cmds = ["tensorboard --logdir  {}  --port {}".format(dirname, i+7100) for i, dirname in enumerate(cheetah_dirs)]
+# processes_tb = [Popen(cmd, shell=True) for cmd in tb_cmds]
+# pprint.pprint(tb_cmds)
+# for p in processes_tb:
+#   p.wait()
 '''
 python /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/run_hw2.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 10000 -lr 0.005 -rtg --nn_baseline --exp_name q4_search_b10000_lr0.005_rtg_nnbaseline
 python /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/run_hw2.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 10000 -lr 0.01 -rtg --nn_baseline --exp_name q4_search_b10000_lr0.01_rtg_nnbaseline
@@ -31,7 +34,6 @@ python /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/run_hw2.py --env_nam
 python /git/py.code/hw2/homework_fall2020/hw2/cs285/scripts/run_hw2.py --env_name HalfCheetah-v2 --ep_len 150 --discount 0.95 -n 100 -l 2 -s 32 -b 50000 -lr 0.02 -rtg --nn_baseline --exp_name q4_search_b50000_lr0.02_rtg_nnbaseline
 
 '''
-
 
 '''
 tensorboard --logdir  /git/py.code/hw2/homework_fall2020/hw2/data/q4_search_b10000_lr0.02_rtg_nnbaseline_HalfCheetah-v2_20-10-2020_14-12-18

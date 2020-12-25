@@ -16,7 +16,7 @@ class ReplayBuffer(object):
   def add_rollouts(self, paths, noised=False):
 
     # add new rollouts into our list of rollouts
-    for path in paths:
+    for path in paths: # path: dict of (obsearvations, image_obs, ....)
       self.paths.append(path)
 
     # convert new rollouts into their component arrays, and append them onto our arrays
